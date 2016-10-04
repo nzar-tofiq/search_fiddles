@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>Search Fiddles</title>
+		<script src="data.js"></script>
+		<script src="http://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+		<style media="screen">
+			.wrapper {
+				margin: 0 auto 0 auto;
+				width: 90%;
+			}
+
+			div {
+				margin: 10px auto;
+			}
+
+			.text_box {
+				border: teal solid 1px;
+			}
+
+			.button {
+				background: teal;
+				border-radius: 0;
+				color: white;
+				border: white solid 1px;
+			}
+
+			.button:hover {
+				background: white;
+				color: teal;
+				border: teal solid 1px;
+			}
+
+			.user_info a {
+				background: teal;
+				text-decoration: none;
+				color: white;
+				padding: 5px;
+			}
+
+			.user_info a:hover {
+				background: white;
+				color: teal;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="wrapper">
+			<div class="find_user">
+				<input type="text" name="find_user" class="find_user_text text_box">
+				<input type="button" name="find_user" value="Find" class="find_user_btn button">
+			</div>
+			<div class="user_info">
+
+			</div>
+			<div class="search_fiddles">
+				<input type="text" class="search_fiddles_text text_box">
+				<input type="button" value="search Fiddles" class="searc_fiddles_btn button">
+			</div>
+			<div class="fiddles">
+			</div>
+		</div>
+		<script>
+			$(document).ready(function() {
+				var userName, userLink, userInfo, match, str = '',
+					entry, $results, results, template;
+				userName = 'binaryben';
+				userLink = 'http://jsfiddle.net/user/' + userName + '/fiddles/';
+				userInfo = '<a href="' + userLink + '">' + userName + '</a>'
+				$('.user_info').html(userInfo);
+
+				function search(str, data) {
+					$results = $(data).map(function(entry) {
+						match = data[entry].title.toLowerCase().indexOf(str.toLowerCase()) > -1;
+						return match ? entry : null;
+					});
+					return $results;
+				}
+
+				function update(str) {
+					if (str === '') {
+						str = ' ';
+					}
+					results = search(str, data);
+					$('.fiddles').html("");
+					$(results).each(function(i, v) {
+						template = '<div class="title"><a href="http://' + data[v].url + '">' + data[v].title + '</a></div>';
+						template += '<div class = "description" > ' + data[v].description + '</div>';
+						$('.fiddles').append(template);
+					});
+				}
+				$('.search_fiddles_text').keyup(function() {
+					update($(this).val());
+				});
+				update(' ', data);
+			});
+		</script>
+	</body>
+
+</html>
