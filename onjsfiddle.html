@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<meta name="robots" content="noindex, nofollow">
+		<meta name="googlebot" content="noindex, nofollow">
+
+
+
+
+
+
+
+
+
+
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.1/jquery.js"></script>
+
+
+
+
+
+
+
+
+		<link rel="stylesheet" type="text/css" href="/css/result-light.css">
+
+
+
+
+		<script type="text/javascript" src="//flowcms.infxsolutions.com/script/handlebars.js/handlebars-v3.0.3.js"></script>
+
+
+
+		<script type="text/javascript" src="//flowcms.infxsolutions.com/script/handlebars.js/handlebars-v3.0.3.js"></script>
+
+
+
+		<style type="text/css">
+			.wrapper {
+				font-family: Arial, sans-serif;
+				font-size: 1.1em;
+				color: #555;
+				margin: 0 auto 0 auto;
+			}
+
+			.text_box {
+				border: teal solid 1px;
+				padding: 5px;
+			}
+
+			.search_fiddles_text {
+				display: none;
+			}
+
+			.fiddle {
+				margin-top: 15px;
+				margin-bottom: 15px;
+				background: #DDD;
+			}
+
+			.button,
+			a {
+				text-decoration: none;
+				background: teal;
+				border-radius: 0;
+				border: #FFF solid 1px;
+				color: #FFF;
+			}
+
+			.button:hover,
+			a:hover {
+				background: white;
+				color: teal;
+				border: teal solid 1px;
+			}
+		</style>
+
+		<title>Search for user fiddles</title>
+
+
+
+
+
+
+
+		<script type='text/javascript'>
+			//<![CDATA[
+			window.onload = function() {
+					$('.find_user_btn').click(function(e) {
+						var userName, userLink, userInfo;
+						e.preventDefault();
+						userName = $('.find_user_text').val();
+						$.ajax({
+							url: '//fiddle.jshell.net/api/user/' + userName + '/demo/list.json?&limit=99999'
+						}).done(function(allFiddles) {
+							var fiddleUser = {};
+							fiddleUser.userName = userName;
+							fiddleUser.link = '//jsfiddle.net/user/' + userName + '/fiddles/';
+
+							function renderUser() {
+								var source = $("#user").html();
+								var template = Handlebars.compile(source);
+								$('.user_info').html(template(fiddleUser));
+							}
+							renderUser();
+							$('div').data('allFiddles', JSON.parse(allFiddles));
+							$('.find_user').hide();
+							$('.search_fiddles_text').show();
+							showFiddles('');
+						}).error(function() {
+							$('.user_info').html('Have you checked if the username actually exists?!');
+						});
+					});
+
+					function showFiddles(str) {
+						var data = $('div').data('allFiddles'),
+							filteredFiddles, match;
+
+						if (str === '') {
+							str = ' ';
+						}
+
+						filteredFiddles = $(data).map(function(entry) {
+							//console.log('\n\n\n...........here is the data ...................\n\n\n', entry);
+							matchDesc = data[entry].description.toLowerCase().indexOf(str.toLowerCase()) > -1;
+							matchTitle = data[entry].title.toLowerCase().indexOf(str.toLowerCase()) > -1;
+							match = matchTitle | matchDesc;
+							//console.log('\n\n\n...........here is the data ...................\n\n\n', match);
+							return match ? data[entry] : null;
+						});
+
+						function render() {
+							var source = $("#fiddles").html();
+							var template = Handlebars.compile(source);
+							$('.fiddles').html(template(filteredFiddles));
+						}
+						render();
+					}
+					$('.search_fiddles_text').keyup(function() {
+						showFiddles($(this).val());
+					});
+
+				} //]]>
+		</script>
+
+
+	</head>
+
+	<body>
+		<div class="wrapper">
+
+			<form class="find_user">
+				<h3>Enter the fiddle js user name and enter or click, so we can get the fiddles</h3>
+				<input type="text" name="find_user" class="find_user_text text_box" placeholder="Username">
+				<input type="submit" name="find_user" value="Find User" class="find_user_btn button">
+			</form>
+			<div class="user_info">
+
+			</div>
+			<div class="search_fiddles">
+				<input type="text" class="search_fiddles_text text_box" placeholder="Search for a fiddle">
+			</div>
+			<div class="fiddles">
+			</div>
+			<div id="error_msg"></div>
+			<script id="user" type="text/html">
+				<p>Username: {{userName}} <a href="{{link}}">Link to user</a></p>
+			</script>
+			<script id="fiddles" type="text/html">
+				{{#each .}}
+				<div class="fiddle">
+					<div class="title">
+						<a href="{{url}}">{{title}}</a>
+					</div>
+					<div class="description"> {{description}} </div>
+				</div>
+				{{/each}}
+			</script>
+		</div>
+
+
+	</body>
+
+</html>
