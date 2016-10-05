@@ -1,103 +1,115 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-	<meta charset="utf-8">
-	<title>Search Fiddles</title>
-	<script src="data.js"></script>
-	<script src="http://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
-	<!-- <script src="handlebars.js"></script> -->
-	<!-- <script src="fiddle.js" charset="utf-8"></script> -->
-	<style>
-		.wrapper {
-			margin: 0 auto 0 auto;
-			width: 90%;
-		}
+	<head>
+		<meta charset="utf-8">
+		<title>Search Fiddles</title>
+		<script src="data.js"></script>
+		<script src="http://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+		<!-- <script src="handlebars.js"></script> -->
+		<!-- <script src="fiddle.js" charset="utf-8"></script> -->
+		<style>
+			.wrapper {
+				margin: 0 auto 0 auto;
+				width: 90%;
+			}
 
-		div {
-			margin: 10px auto;
-		}
+			div {
+				margin: 10px auto;
+			}
 
-		.text_box {
-			border: teal solid 1px;
-		}
+			.text_box {
+				border: teal solid 1px;
+			}
 
-		.button {
-			background: teal;
-			border-radius: 0;
-			color: white;
-			border: white solid 1px;
-		}
+			.search_fiddles_text {
+				display: none;
+			}
 
-		.button:hover {
-			background: white;
-			color: teal;
-			border: teal solid 1px;
-		}
+			.button {
+				background: teal;
+				border-radius: 0;
+				color: white;
+				border: white solid 1px;
+			}
 
-		.user_info a {
-			background: teal;
-			text-decoration: none;
-			color: white;
-			padding: 5px;
-		}
+			.button:hover {
+				background: white;
+				color: teal;
+				border: teal solid 1px;
+			}
 
-		.user_info a:hover {
-			background: white;
-			color: teal;
-		}
-	</style>
-</head>
+			.user_info a {
+				background: teal;
+				text-decoration: none;
+				color: white;
+				padding: 5px;
+			}
 
-<body>
-	<div class="wrapper">
-		<form class="find_user">
-			<input type="text" name="find_user" class="find_user_text text_box">
-			<input type="submit" name="find_user" value="Find" class="find_user_btn button">
-		</form>
-		<div class="user_info">
-			<!-- <script id="user_info_link" type="text/html">
+			.user_info a:hover {
+				background: white;
+				color: teal;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="wrapper">
+			<form class="find_user">
+				<input type="text" name="find_user" class="find_user_text text_box">
+				<input type="submit" name="find_user" value="Find" class="find_user_btn button">
+			</form>
+			<div class="user_info">
+				<!-- <script id="user_info_link" type="text/html">
 				<a href="http://jsfiddle.net/user/{{userName}}/fiddles/">{{userName}}</a>
 			</script> -->
-		</div>
-		<div class="search_fiddles">
-			<input type="text" class="search_fiddles_text text_box">
-			<input type="button" value="search Fiddles" class="searc_fiddles_btn button">
-		</div>
-		<div class="fiddles">
+			</div>
+			<div class="search_fiddles">
+				<input type="text" class="search_fiddles_text text_box" placeholder="Search">
+			</div>
+			<div class="fiddles">
 
+			</div>
 		</div>
-	</div>
-	<!-- <script id="fiddles" type="text/html">
+		<!-- <script id="fiddles" type="text/html">
 			{{#each .}}
 			<div class="title">
 				<a href={{{url}}}>{{title}}</a>
 			</div>
 			<div class="description"> {{description}} </div>
 		</script> -->
-	<script>
-		$(document).ready(function() {;
-			$('.find_user_btn').click(function(e) {
-				var userName, userLink, userInfo, str = '';
-				e.preventDefault();
-				userName = $('.find_user_text').val();
-				userLink = '<a href="http://jsfiddle.net/user/' + userName + '/fiddles/">' + userName + '</a>';
+		<script>
+			$(document).ready(function() {;
+				$('.find_user_btn').click(function(e) {
+					var userName, userLink, userInfo, str = '';
+					e.preventDefault();
+					userName = $('.find_user_text').val();
+					userLink = '<a href="http://jsfiddle.net/user/' + userName + '/fiddles/">' + userName + '</a>';
 
-				function search(str, data) {
-					results = $(data).map(function(entry) {
-						match = data[entry].title.toLowerCase().indexOf(str.toLowerCase()) > -1;
-						return match ? data[entry] : null;
-					});
-					return results;
-				}
+					$('.user_info').html(userLink);
+					$('div').data('allFiddles', data);
+					$('.find_user').hide();
+					$('.search_fiddles_text').show();
+					showFiddles('');
+				});
 
-				function update(str) {
+				function showFiddles(str) {
+					var data = $('div').data('allFiddles'),
+						results, match;
+
 					if (str === '') {
 						str = ' ';
 					}
-					results = search(str, data);
-					$('.fiddles').html("");
 
+					results = $(data).map(function(entry) {
+						//console.log('\n\n\n...........here is the data ...................\n\n\n', entry);
+						matchDesc = data[entry].description.toLowerCase().indexOf(str.toLowerCase()) > -1;
+						matchTitle = data[entry].title.toLowerCase().indexOf(str.toLowerCase()) > -1;
+						match = matchTitle | matchDesc;
+						//console.log('\n\n\n...........here is the data ...................\n\n\n', match);
+						return match ? data[entry] : null;
+					});
+					$('.fiddles').html('');
 					$(results).each(function(i, v) {
 						template = '<div class="title"><a href="http://' + this.url + '">' + this.title + '</a></div>';
 						template += '<div class = "description" > ' + this.description + '</div>';
@@ -105,27 +117,26 @@
 					});
 				}
 				$('.search_fiddles_text').keyup(function() {
-					update($(this).val());
+					console.log($(this).val());
+					showFiddles($(this).val());
 				});
-				update(' ', data);
 			});
-		});
-		// function renderUserInfoLink(userName) {
-		// 	var source = $('#user_info_link').html();
-		//
-		// 	var template = Handlebars.compile(source);
-		//
-		// 	$('.user_info').html(template(userName))
-		// }
-		// renderUserInfoLink(userName);
+			// function renderUserInfoLink(userName) {
+			// 	var source = $('#user_info_link').html();
+			//
+			// 	var template = Handlebars.compile(source);
+			//
+			// 	$('.user_info').html(template(userName))
+			// }
+			// renderUserInfoLink(userName);
 
-		// function render() {
-		// 	var source = $("#fiddles").html();
-		// 	var template = Handlebars.compile(source);
-		// 	$('.fiddles').html(template(results));
-		// }
-		// render();
-	</script>
-</body>
+			// function render() {
+			// 	var source = $("#fiddles").html();
+			// 	var template = Handlebars.compile(source);
+			// 	$('.fiddles').html(template(results));
+			// }
+			// render();
+		</script>
+	</body>
 
 </html>
